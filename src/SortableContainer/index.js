@@ -229,6 +229,9 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
     };
 
     handlePress = e => {
+      // Set a timeout to call handleSortEnd - if handleSortMove cancels this if it is called before executing this timeout
+      this.cancelTimer = setTimeout(this.handleSortEnd, 500);
+
       const active = this.manager.getActive();
 
       if (active) {
@@ -352,6 +355,12 @@ export default function sortableContainer(WrappedComponent, config = {withRef: f
     };
 
     handleSortMove = e => {
+      // cancelTimer was set in handlePress in case we didn't get this far and a sortable item got stuck
+      // If we are here, that didn't happen, so cancel the timeout
+      if (this.cancelTimer) {
+        clearTimeout(this.cancelTimer)
+      }
+
       const {onSortMove} = this.props;
       e.preventDefault(); // Prevent scrolling on mobile
 
